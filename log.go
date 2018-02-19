@@ -29,6 +29,7 @@ type Logger struct {
 	color     bool
 	out       FdWriter
 	debug     bool
+	info      bool
 	timestamp bool
 	quiet     bool
 	buf       colorful.ColorBuffer
@@ -137,6 +138,29 @@ func (l *Logger) IsDebug() bool {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	return l.debug
+}
+
+// WithInfo turn on info output on the log to reveal info level
+func (l *Logger) WithInfo() *Logger {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.info = true
+	return l
+}
+
+// WithoutInfo turn off info output on the log
+func (l *Logger) WithoutInfo() *Logger {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.info = false
+	return l
+}
+
+// IsInfo check the state of info output
+func (l *Logger) IsInfo() bool {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	return l.info
 }
 
 // WithTimestamp turn on timestamp output on the log
@@ -305,12 +329,16 @@ func (l *Logger) Warnf(format string, v ...interface{}) {
 
 // Info print informational message to output
 func (l *Logger) Info(v ...interface{}) {
-	l.Output(1, InfoPrefix, fmt.Sprintln(v...))
+	if l.IsInfo() {
+		l.Output(1, InfoPrefix, fmt.Sprintln(v...))
+	}
 }
 
 // Infof print formatted informational message to output
 func (l *Logger) Infof(format string, v ...interface{}) {
-	l.Output(1, InfoPrefix, fmt.Sprintf(format, v...))
+	if l.IsInfo() {
+		l.Output(1, InfoPrefix, fmt.Sprintf(format, v...))
+	}
 }
 
 // Debug print debug message to output if debug output enabled
