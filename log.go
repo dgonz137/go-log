@@ -6,13 +6,13 @@ package log
 import (
 	"fmt"
 	"io"
-	"os"
+	_ "os"
 	"path/filepath"
 	"runtime"
 	"sync"
 	"time"
 
-	"github.com/withmandala/go-log/colorful"
+	"go-log/colorful"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
@@ -30,6 +30,7 @@ type Logger struct {
 	out       FdWriter
 	debug     bool
 	info      bool
+	trace     bool
 	timestamp bool
 	quiet     bool
 	buf       colorful.ColorBuffer
@@ -162,6 +163,29 @@ func (l *Logger) IsInfo() bool {
 	l.mu.RLock()
 	defer l.mu.RUnlock()
 	return l.info
+}
+
+// WithTrace turn on trace output on the log to reveal trace level
+func (l *Logger) WithTrace() *Logger {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.trace = true
+	return l
+}
+
+// WithoutTrace turn off trace output on the log
+func (l *Logger) WithoutTrace() *Logger {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	l.trace = false
+	return l
+}
+
+// IsTrace check the state of trace output
+func (l *Logger) IsTrace() bool {
+	l.mu.RLock()
+	defer l.mu.RUnlock()
+	return l.trace
 }
 
 // WithTimestamp turn on timestamp output on the log
@@ -298,14 +322,12 @@ func (l *Logger) Output(depth int, prefix Prefix, data string) error {
 // Fatal print fatal message to output and quit the application with status 1
 func (l *Logger) Fatal(v ...interface{}) {
 	l.Output(1, FatalPrefix, fmt.Sprintln(v...))
-	os.Exit(1)
 }
 
 // Fatalf print formatted fatal message to output and quit the application
 // with status 1
 func (l *Logger) Fatalf(format string, v ...interface{}) {
 	l.Output(1, FatalPrefix, fmt.Sprintf(format, v...))
-	os.Exit(1)
 }
 
 // Error print error message to output
@@ -358,14 +380,14 @@ func (l *Logger) Debugf(format string, v ...interface{}) {
 
 // Trace print trace message to output if debug output enabled
 func (l *Logger) Trace(v ...interface{}) {
-	if l.IsDebug() {
+	if l.IsTrace() {
 		l.Output(1, TracePrefix, fmt.Sprintln(v...))
 	}
 }
 
 // Tracef print formatted trace message to output if debug output enabled
 func (l *Logger) Tracef(format string, v ...interface{}) {
-	if l.IsDebug() {
+	if l.IsTrace() {
 		l.Output(1, TracePrefix, fmt.Sprintf(format, v...))
 	}
 }
