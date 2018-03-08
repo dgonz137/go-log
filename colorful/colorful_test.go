@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
-	"github.com/dgonz/go-log/buffer"
+	"github.com/dgonz137/go-log/buffer"
 )
 
 func TestColorBuffer(t *testing.T) {
