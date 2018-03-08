@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"go-log/colorful"
+	"github.com/dgonz137/go-log/colorful"
 	"golang.org/x/crypto/ssh/terminal"
 )
 
