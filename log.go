@@ -6,7 +6,7 @@ package log
 import (
 	"fmt"
 	"io"
-	_ "os"
+	"os"
 	"path/filepath"
 	"runtime"
 	"sync"
@@ -322,12 +322,14 @@ func (l *Logger) Output(depth int, prefix Prefix, data string) error {
 // Fatal print fatal message to output and quit the application with status 1
 func (l *Logger) Fatal(v ...interface{}) {
 	l.Output(1, FatalPrefix, fmt.Sprintln(v...))
+	os.Exit(1)
 }
 
 // Fatalf print formatted fatal message to output and quit the application
 // with status 1
 func (l *Logger) Fatalf(format string, v ...interface{}) {
 	l.Output(1, FatalPrefix, fmt.Sprintf(format, v...))
+	os.Exit(1)
 }
 
 // Error print error message to output
